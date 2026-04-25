@@ -1,12 +1,24 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+class PasswordRequest(BaseModel):
+    length: int = Field(12, ge=4, le=128, description="Длина пароля")
+    use_digits: bool = Field(True, description="Включить цифры (0-9)")
+    use_special: bool = Field(True, description="Включить спецсимволы (!@#$%^&*()_+-=[]{}|;:,.<>?)")
+    use_uppercase: bool = Field(True, description="Включить заглавные буквы (A-Z)")
+
+    @field_validator('length')
+    @classmethod
+    def validate_length(cls, v: int) -> int:
+        if v < 4:
+            raise ValueError('Длина пароля не может быть меньше 4 символов')
+        if v > 128:
+            raise ValueError('Длина пароля не может быть больше 128 символов')
+        return v
 
 
-class TextRequest(BaseModel):
-    text: str = Field(..., min_length=1, description="Текст для анализа")
-
-
-class TextAnalysisResponse(BaseModel):
-    word_count: int = Field(..., description="Количество слов")
-    char_count: int = Field(..., description="Количество символов (с пробелами)")
-    char_count_no_spaces: int = Field(..., description="Количество символов (без пробелов)")
-    top_words: list[tuple[str, int]] = Field(..., description="Топ-5 слов по частоте")
+class PasswordResponse(BaseModel):
+    password: str = Field(..., description="Сгенерированный пароль")
+    length: int = Field(..., description="Длина пароля")
+    has_digits: bool = Field(..., description="Включены ли цифры")
+    has_special: bool = Field(..., description="Включены ли спецсимволы")
+    has_uppercase: bool = Field(..., description="Включены ли заглавные буквы")

@@ -1,19 +1,18 @@
-import re
-from collections import Counter
+import random
+import string
 
 
-def analyze_text(text: str) -> dict:
-    """Анализирует текст и возвращает статистику."""
-    # Извлекаем слова (буквы, цифры, подчёркивания)
-    words = re.findall(r"\b\w+\b", text.lower())
-    word_count = len(words)
-    char_count = len(text)
-    char_count_no_spaces = len(text.replace(" ", "").replace("\n", "").replace("\t", ""))
-    top_words = Counter(words).most_common(5)
+def generate_password(length: int, use_digits: bool, use_special: bool, use_uppercase:bool) -> str:
+    characters = string.ascii_lowercase  # всегда есть строчные буквы
 
-    return {
-        "word_count": word_count,
-        "char_count": char_count,
-        "char_count_no_spaces": char_count_no_spaces,
-        "top_words": top_words,
-    }
+    if use_uppercase:
+        characters += string.ascii_uppercase
+    if use_digits:
+        characters += string.digits
+    if use_special:
+        characters += "!@#$%^&*()_+-=[]{}|;:,.<>?"
+
+    if not any([use_digits, use_special, use_uppercase]):
+        characters = string.ascii_lowercase
+
+    return ''.join(random.choice(characters) for _ in range(length))
